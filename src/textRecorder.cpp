@@ -8,6 +8,7 @@
 #include "traceRecord.h"
 #include "logger.h"
 #include "textRecorder.h"
+#include "symbolResolver.h"
 
 using namespace std;
 
@@ -70,10 +71,24 @@ void TextRecorder::record(const TraceRecord &record) {
              << readMemToHex((void *) record.address, 4);
 
         auto addrSymbol = getAddressSymbol(record);
-        // 有符号
-        if (addrSymbol.symbolIndex != 0) {
-            *fs_ << ":" << RecorderManager::getInstance().stringCache->getString(addrSymbol.symbolIndex)
-                 << "+" << std::hex << addrSymbol.offset;
+        bool printedModuleOffset = false;
+        auto resolvedModule = GlobalSymbolResolver::getInstance().resolveAddress(record.address);
+        if (resolvedModule.isValid && resolvedModule.moduleBase != 0) {
+            std::string moduleName = resolvedModule.modulePath;
+            auto pos = moduleName.find_last_of("/\\");
+            if (pos != std::string::npos && pos + 1 < moduleName.size()) {
+                moduleName = moduleName.substr(pos + 1);
+            }
+            uint64_t moduleOffset = record.address - resolvedModule.moduleBase;
+            *fs_ << ":" << moduleName << "+0x" << std::hex << moduleOffset;
+            printedModuleOffset = true;
+        }
+
+        // fallback to old symbol representation when module information is unavailable
+        if (!printedModuleOffset && addrSymbol.symbolIndex != 0) {
+            if (auto *symbolName = RecorderManager::getInstance().stringCache->getString(addrSymbol.symbolIndex)) {
+                *fs_ << ":" << symbolName << "+" << std::hex << addrSymbol.offset;
+            }
         }
 
         *fs_ << std::endl;
