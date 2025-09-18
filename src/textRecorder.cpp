@@ -73,7 +73,7 @@ void TextRecorder::record(const TraceRecord &record) {
         auto addrSymbol = getAddressSymbol(record);
         bool printedModuleOffset = false;
         auto resolvedModule = GlobalSymbolResolver::getInstance().resolveAddress(record.address);
-        if (resolvedModule.isValid && resolvedModule.moduleBase != 0) {
+        if (resolvedModule.moduleBase != 0) {
             std::string moduleName = resolvedModule.modulePath;
             auto pos = moduleName.find_last_of("/\\");
             if (pos != std::string::npos && pos + 1 < moduleName.size()) {
