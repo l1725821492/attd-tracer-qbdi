@@ -14,6 +14,7 @@
 #include <link.h>
 #include <elf.h>
 #include <sys/mman.h>
+#include <mutex>  // for std::once_flag / std::call_once
 
 // 符号解析结果结构
 struct ResolvedSymbol {
