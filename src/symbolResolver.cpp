@@ -332,7 +332,11 @@ ResolvedSymbol SymbolResolver::resolveAddress(uint64_t address) {
     
     // 在模块中解析符号
     ResolvedSymbol result = resolveInModule(address, moduleInfo);
-    
+
+    // 无论是否找到具体符号，都补充模块信息，方便后续使用
+    result.moduleBase = moduleInfo->baseAddress;
+    result.modulePath = moduleInfo->path;
+
     // 缓存结果（无论是否成功）
     symbolCache_[address] = result;
     
