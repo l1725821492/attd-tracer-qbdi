@@ -52,7 +52,7 @@ void RecorderManager::saveSymbols(TraceRecord &record) const {
         }
     }
 
-    auto symbolEntry = GlobalSymbolResolver::getInstance().resolveAddress(ADDRESS_REG_INDEX);
+    auto symbolEntry = GlobalSymbolResolver::getInstance().resolveAddress(record.address);
     if (symbolEntry.isValid) {
         record.symbols[ADDRESS_REG_INDEX].offset = record.address - symbolEntry.symbolAddress;
         if (symbolEntry.symbolNamePoolIndex == 0) {
